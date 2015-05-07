@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 
 """
-遍历'data/date/'目录下的所有csv文件，按照用户分割，生成'data/user'目录以及用户文件.
+读取'EMC/EMCdata/net_traffic_nospace.csv'文件，按照用户分割，生成'data/user'目录以及用户文件.
 
 用户文件内容格式：
 
@@ -20,7 +20,7 @@ user_dictionary = {}
 
 def writeByUser(user_id,words):
     file_name = user_id+".csv"
-    os.chdir("E:/Niulab/EMC/EMCdata/user/")
+    os.chdir("../EMCdata/user/")
     if not user_dictionary.has_key(user_id):
         user_dictionary[user_id] = True
         f = open(file_name,'ab')
@@ -34,12 +34,12 @@ def writeByUser(user_id,words):
         write = csv.writer(f)
         write.writerow(words)
         f.close()
-    os.chdir("E:/Niulab/EMC/github/emc-sjtu/")
+    os.chdir("../../emc-sjtu/")
 
 
 def splitByUser():
-    os.mkdir("E:/Niulab/EMC/EMCdata/user/")
-    f = open("E:/Niulab/EMC/EMCdata/net_traffic_sample.csv")
+    os.mkdir("../EMCdata/user/")
+    f = open("../EMCdata/net_traffic_nospace.csv")
     rows = csv.reader(f)
     # rows.next()
     for row in rows:

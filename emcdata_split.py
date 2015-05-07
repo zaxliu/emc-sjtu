@@ -17,13 +17,13 @@ def addTuple(user_id,isp,byte):
 
 
 def splitByUserandWeb():
-    f = open("E:/Niulab/EMC/EMCdata/net_traffic_sample.csv")
+    f = open("../EMCdata/net_traffic_nospace.csv")
     rows = csv.reader(f)
     for row in rows:
         user_id = row[0]
         ISP_total = row[4].split(";")
         Com_byte = row[7].split(";")
         for index,isp in enumerate(ISP_total):
-            print isp
             addTuple(user_id,isp,Com_byte[index])
     print final_dictionary
+

@@ -5,11 +5,9 @@
 1.运行split_by_user.py，在user目录下生成按用户区分的文件
 
 """
-import pdb
-import os
-import csv
+
 import time
-# from split_by_date import splitByDate
+from delete_space import deleteSpace
 from split_by_user import splitByUser
 # from gen_iid_geohash_category import genIid
 # from gen_uid_iid import genUidIid
@@ -18,10 +16,10 @@ from emcdata_split import splitByUserandWeb
 # pdb.set_trace()
 if __name__ == "__main__":
     print "====================================="
-#    t0 = time.time()
-#    splitByDate()
+    t0 = time.time()
+    # deleteSpace()
     t1 = time.time()
-#    print "It takes %f s to split by date,generate 'data/date/*.csv'" %(t1-t0)
+    print "It takes %f s to delete all spaces and generate 'EMC/EMCdata/*.csv'" %(t1-t0)
     splitByUser()
     t2 = time.time()
     print "It takes %f s to split by user,generate '/user/*.csv'" %(t2-t1)
