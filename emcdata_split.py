@@ -15,28 +15,30 @@ def addTupleandByte(user_id,isp,byte):
     if not final_dictionary.has_key(key_tuple):
         final_dictionary[key_tuple] = byte
     else:
-        final_dictionary[key_tuple] = final_dictionary[key_tuple] + byte
+        final_dictionary[key_tuple] += byte
 
 
 def generateDictBy(para):
-    f = open("../EMCdata/net_traffic_sample.csv")
-    os.mkdir("../EMCdata/Dictionary/")
-    f_user = open("../EMCdata/Dictionary/userID_set.pkl", 'ab')
-    f_ISP = open("../EMCdata/Dictionary/ISP_set.pkl", 'ab')
-    f_dict = open("../EMCdata/Dictionary/"+para+".pkl", 'ab')
+    f = open("../EMCdata/net_traffic_nospace.csv")
+    # os.mkdir("../EMCdata/Dictionary/")
+    f_user = open("../EMCdata/Dictionary/userID_set.pkl", 'wb')    # user write mode to overwrite existing pkl files
+    f_ISP = open("../EMCdata/Dictionary/domain_set.pkl", 'wb')
+    f_dict = open("../EMCdata/Dictionary/"+para+".pkl", 'wb')
     rows = csv.reader(f)
     if para == 'CommunicationTotalByte':
         for row in rows:
             user_id = row[0]
             ISP_total = row[4].split(";")
             Com_byte = row[7].split(";")
-            for index,isp in enumerate(ISP_total):
-                addTupleandByte(user_id, isp, Com_byte[index])
+            for index, isp in enumerate(ISP_total):
+                addTupleandByte(user_id, isp, float(Com_byte[index]))
     cPickle.dump(final_dictionary,f_dict, -1)
     f_dict.close()
     cPickle.dump(userid_set,f_user, -1)
     f_user.close()
     cPickle.dump(ISP_set,f_ISP, -1)
     f_ISP.close()
-    path = {'userID': '../EMCdata/Dictionary/ISP_set.pkl','visiting_ISP': '../EMCdata/Dictionary/ISP_set.pkl',para: '../EMCdata/Dictionary/'+para+'.pkl'}
+    path = {'userID': '../EMCdata/Dictionary/userID_set.pkl',
+            'Domain': '../EMCdata/Dictionary/domain_set.pkl',
+            'method': '../EMCdata/Dictionary/'+para+'.pkl'}
     return path

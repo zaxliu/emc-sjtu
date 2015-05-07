@@ -21,7 +21,7 @@ def data_preprocess(value_style):
     deleteSpace()
     t1 = time.time()
     print "It takes %f s to delete all spaces and generate 'EMC/EMCdata/*.csv'" %(t1-t0)
-    splitByUser()
+    # splitByUser()
     t2 = time.time()
     print "It takes %f s to split by user,generate '/user/*.csv'" %(t2-t1)
     path = generateDictBy(value_style)
@@ -30,5 +30,5 @@ def data_preprocess(value_style):
     print "====================================="
     return path
 
-
-print data_preprocess('CommunicationTotalByte')
+if __name__ == '__main__':
+    print data_preprocess('CommunicationTotalByte')

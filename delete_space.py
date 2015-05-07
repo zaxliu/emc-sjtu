@@ -6,7 +6,7 @@ import csv
 
 # 删除掉原文件中的所有空格字符，空格会导致后续csv读取时报错
 def deleteSpace():
-    f = open("../EMCdata/net_traffic.dat", 'r+')
+    f = open("../EMCdata/net_traffic.sample", 'r+')
     filename = "../EMCdata/net_traffic_nospace.csv"
     f_new = open(filename, 'w')
     num = 1
