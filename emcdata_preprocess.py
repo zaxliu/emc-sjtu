@@ -2,10 +2,15 @@
 # -*-coding:utf-8-*-
 #coding=utf-8
 """
-本函数包含以下功能：
-1.对原始数据进行清洗，消除里面的所有NULL字符
-2.运行split_by_user.py中对应的分割函数，在user目录下生成按用户区分的文件
-3.运行emcdata_split.py中的生成Dict的函数，函数输入为需要分割的方式，根据分割方式在/EMCdata/Dictionary/目录下存储set和dictionary，输出为pkl文件对应的路径
+function introduction:
+1.data cleaning:remove all NULL byte from the orignal dataset
+2.run splitByUser function in 'split_by_user.py', split the dataset based on user_id and storage small set in "/EMCdata/user/"
+3.run generateDictBy(para) function in 'emcdata_split.py' to generate one dictionary and two sets.
+    if para == 'CommunicationTotalByte':    dictionary = {(user_id,web):Byte}       here 'Byte' represents the user's total communication bytes number on this web
+    if para == 'Duration':  dictionary = {(user_id,web):'dur'}         here 'dur' represents the user's total visiting time on this web
+    if para == 'HTTPRequestNum':    dictionary = {(user_id,web):'HTTP_request'}     here 'HTTP_request' represents how many HTTP request the user has made on this web
+    if para == 'VisitingNum':       dictionary = {(user_id,web):'visit_num'}     here 'visit_num' represents the total number that the user has visited this web
+4.the returned value of this function is a dictionary which contains the corresponding'.pkl' files' path
 """
 import time
 from delete_space import deleteSpace
@@ -30,5 +35,9 @@ def data_preprocess(value_style):
     print "====================================="
     return path
 
+
 if __name__ == '__main__':
-    print data_preprocess('CommunicationTotalByte')
+    data_preprocess('CommunicationTotalByte')
+    data_preprocess('Duration')
+    data_preprocess('HTTPRequestNum')
+    data_preprocess('VisitingNum')
