@@ -24,10 +24,10 @@ def log_preprocess(net_traffic_path, value_style):
     # delete_null(net_traffic_path)
     t1 = time.time()
     print "It takes %f s to delete all NULLs" %(t1-t0)
-    splitByUser(net_traffic_path)
+    # splitByUser(net_traffic_path)
     t2 = time.time()
     print "It takes %f s to split log by user" %(t2-t1)
-    # path = generateDictBy(net_traffic_path, value_style)
+    path = generateDictBy(net_traffic_path, value_style)
     t3 = time.time()
     print "It takes %f s to generate dictionary" %(t3-t2)
     print "====================================="
