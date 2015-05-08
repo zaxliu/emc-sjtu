@@ -23,10 +23,10 @@ dict_path = {'userID': net_traffic_path+".dictionary/userID_set.pkl",
         'method': net_traffic_path+".dictionary/"+value_style+".pkl"}
 
 # Generate profile vector
-# profile_path = full_profile_vector(net_traffic_path, dict_path, 'Row_Mean')
+profile_path = full_profile_vector(net_traffic_path=net_traffic_path, pkl_path=dict_path, option='Origin')
 # Uncomment the following to use generated files
-profile_path = net_traffic_path+".profile_vector/profile.pkl"
-profile = cPickle.load(open(profile_path, 'rb'))
+# profile_path = net_traffic_path+".profile_vector/profile.pkl"
+# profile = cPickle.load(open(profile_path, 'rb'))
 
 # # Do clustering and show performance (inertia)
 # max_K = 5

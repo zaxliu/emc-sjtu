@@ -1,6 +1,5 @@
 # @@ -0,0 +1,32 @@
 # -*-coding:utf-8-*-
-#coding=utf-8
 """
 function introduction:
 1.data cleaning:remove all NULL byte from the orignal dataset
