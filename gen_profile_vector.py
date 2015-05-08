@@ -4,10 +4,11 @@
 
 import numpy as np
 import cPickle
+import os
 
-def full_profile_vector(pkl_path, option):
+def full_profile_vector(net_traffic_path, pkl_path, option):
     uid_list = list(cPickle.load(open(pkl_path['userID'], 'rb')))   # set cannot be indexed, so convert to list
-    iid_list = list(cPickle.load(open(pkl_path['Domain'], 'rb')))
+    iid_list = list(cPickle.load(open(pkl_path['domain'], 'rb')))
     dictionary = cPickle.load(open(pkl_path['method'], 'rb'))
 
     print "Generating profile vector",
@@ -42,11 +43,13 @@ def full_profile_vector(pkl_path, option):
             if std_row[i] != 0:
                 full[i, :] = (full[i, :] - mean_row[i]) / std_row[i]
 
-
-
-    f = open("../EMCdata/profile_vector/profile.pkl", 'ab')
+    vector_path = net_traffic_path+".profile_vector/"
+    if not os.path.exists(vector_path):
+        os.mkdir(vector_path)
+    f = open(vector_path+"profile.pkl", 'ab')
     cPickle.dump(full, f, -1)
-    return "../EMCdata/profile_vector/profile.pkl"
+    f.close()
+    return vector_path+"profile.pkl"
 
 if __name__ == '__main__':
     full_profile_vector({'userID': '../EMCdata/Dictionary/userID_set.pkl',

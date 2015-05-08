@@ -6,27 +6,29 @@ This is the main script that glues the modules together
 """
 from sklearn.cluster import KMeans
 from sklearn import metrics
-from emc_profile_vector import full_profile_vector
-from emcdata_preprocess import data_preprocess
+from gen_profile_vector import full_profile_vector
+from log_preprocess import log_preprocess
 import numpy as np
 import cPickle
 import time
 
-# Preprocess raw logs
-# pkl_path = data_preprocess('CommunicationTotalByte')
-pkl_path = {'userID': '../EMCdata/Dictionary/userID_set.pkl',
-        'Domain': '../EMCdata/Dictionary/domain_set.pkl',
-        'method': '../EMCdata/Dictionary/CommunicationTotalByte.pkl'}
+# Preprocess logs
+net_traffic_path = "../EMCdata/net_traffic.dat"
+value_style = 'CommunicationTotalByte'
+dict_path = log_preprocess(net_traffic_path, value_style)
+# Uncomment the following to use generated files
+# dict_path = {'userID': net_traffic_path+".dictionary/userID_set.pkl",
+#         'domain': net_traffic_path+".dictionary/domain_set.pkl",
+#         'method': net_traffic_path+".dictionary/"+value_style+".pkl"}
 
 # Generate profile vector
-# profile_path = full_profile_vector(pkl_path=pkl_path, option='Row_Mean')
-profile_path = "../EMCdata/profile_vector/profile.pkl"
+# profile_path = full_profile_vector(net_traffic_path, dict_path, 'Row_Mean')
+# Uncomment the following to use generated files
+profile_path = net_traffic_path+".profile_vector/profile.pkl"
 profile = cPickle.load(open(profile_path, 'rb'))
-numUser, featureSize = profile.shape
-X = profile   # dummy assignment for future completion
 
 # Do clustering and show performance (inertia)
-max_K = 10
+max_K = 3
 num_run = 5
 inertia = np.zeros([max_K, num_run])
 print "K, run, time, Inertia"
@@ -34,7 +36,7 @@ for idx_K, K in enumerate(np.array(range(max_K))+1):
     for run_id in range(num_run):
         t = time.time()
         model = KMeans(n_clusters=K, init='k-means++', n_init=1)   # initialize model
-        model.fit(X)    # train model
+        model.fit(profile)    # train model
         inertia[idx_K, run_id] = model.inertia_
         print "%1d, %3d, %.2f, %.6f" % (K, run_id, time.time()-t, model.inertia_)
 

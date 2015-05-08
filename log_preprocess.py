@@ -13,31 +13,29 @@ function introduction:
 4.the returned value of this function is a dictionary which contains the corresponding'.pkl' files' path
 """
 import time
-from delete_space import deleteSpace
-from split_by_user import splitByUser
-# from gen_iid_geohash_category import genIid
-# from gen_uid_iid import genUidIid
-from emcdata_split import generateDictBy
+from log_delete_null import delete_null
+from log_split_by_user import splitByUser
+from log_gen_dict import generateDictBy
 
 # value_style could be: Duration,CommunicationTotalByte,HTTPRequestNum,VisitingNum
-def data_preprocess(value_style):
+def log_preprocess(net_traffic_path, value_style):
     print "====================================="
     t0 = time.time()
-    deleteSpace()
+    # delete_null(net_traffic_path)
     t1 = time.time()
-    print "It takes %f s to delete all spaces and generate 'EMC/EMCdata/*.csv'" %(t1-t0)
-    # splitByUser()
+    print "It takes %f s to delete all NULLs" %(t1-t0)
+    splitByUser(net_traffic_path)
     t2 = time.time()
-    print "It takes %f s to split by user,generate '/user/*.csv'" %(t2-t1)
-    path = generateDictBy(value_style)
+    print "It takes %f s to split log by user" %(t2-t1)
+    # path = generateDictBy(net_traffic_path, value_style)
     t3 = time.time()
-    print "It takes %f s to split by user and ISP,generate dictionary" %(t3-t2)
+    print "It takes %f s to generate dictionary" %(t3-t2)
     print "====================================="
     return path
 
 
 if __name__ == '__main__':
-    data_preprocess('CommunicationTotalByte')
-    data_preprocess('Duration')
-    data_preprocess('HTTPRequestNum')
-    data_preprocess('VisitingNum')
+    log_preprocess('CommunicationTotalByte')
+    log_preprocess('Duration')
+    log_preprocess('HTTPRequestNum')
+    log_preprocess('VisitingNum')
