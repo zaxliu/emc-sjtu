@@ -39,7 +39,7 @@ def full_profile_vector(net_traffic_path, pkl_path, option):
         for i in range(len(uid_list)):
             if std_row[i] != 0:
                 full[i, :] = (full[i, :] - mean_row[i]) / std_row[i]
-    vector_path = net_traffic_path+".profile_vector/"
+    vector_path = net_traffic_path+".profile/"
     if not os.path.exists(vector_path):
         os.mkdir(vector_path)
     f = open(vector_path+"profile.pkl", 'wb')

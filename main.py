@@ -45,33 +45,33 @@ profile_path = full_profile_vector(net_traffic_path=net_traffic_path, pkl_path=d
 # plt.show()
 # pass
 
-# Get average user profile of each cluster
-iid_list = list(cPickle.load(open(dict_path['domain'], 'rb')))
-K = 6
-num_u, num_f = profile.shape
-model = KMeans(n_clusters=K, init='k-means++', n_init=1)
-model.fit(profile)
-avgProfile = np.zeros([K, num_f])
-num_u_c = np.zeros([K])
-for u in range(num_u):
-    label = model.labels_[u]
-    if np.sum(profile[u, :]) ==0:
-        pass
-    avgProfile[label, :] += profile[u, :]
-    num_u_c[label] += 1
-for k in range(K):
-    avgProfile[k, :] /= num_u_c[k]
-    top_domains = []
-    top_domains_idx = avgProfile[k, :].argsort()[::-1][0:5]
-    for idx in top_domains_idx:
-        top_domains.append(iid_list[idx])
-    print k,
-    print ': '
-    for domain in top_domains:
-        print domain.decode('utf-8'),
-    print '\n'
-    plt.subplot2grid([K, 1], (k, 0), 1, 1)
-    plt.plot(np.arange(num_f), avgProfile[k, :])
-plt.show()
-pass
-
+# # Get average user profile of each cluster
+# iid_list = list(cPickle.load(open(dict_path['domain'], 'rb')))
+# K = 6
+# num_u, num_f = profile.shape
+# model = KMeans(n_clusters=K, init='k-means++', n_init=1)
+# model.fit(profile)
+# avgProfile = np.zeros([K, num_f])
+# num_u_c = np.zeros([K])
+# for u in range(num_u):
+#     label = model.labels_[u]
+#     if np.sum(profile[u, :]) ==0:
+#         pass
+#     avgProfile[label, :] += profile[u, :]
+#     num_u_c[label] += 1
+# for k in range(K):
+#     avgProfile[k, :] /= num_u_c[k]
+#     top_domains = []
+#     top_domains_idx = avgProfile[k, :].argsort()[::-1][0:5]
+#     for idx in top_domains_idx:
+#         top_domains.append(iid_list[idx])
+#     print k,
+#     print ': '
+#     for domain in top_domains:
+#         print domain.decode('utf-8'),
+#     print '\n'
+#     plt.subplot2grid([K, 1], (k, 0), 1, 1)
+#     plt.plot(np.arange(num_f), avgProfile[k, :])
+# plt.show()
+# pass
+#
