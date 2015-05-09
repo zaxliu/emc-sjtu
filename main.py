@@ -12,66 +12,60 @@ import numpy as np
 import cPickle
 import time
 import matplotlib.pyplot as plt
+from clustering import gen_feature_matrix
+from clustering import do_clustering
 
 # Preprocess logs
 net_traffic_path = "../EMCdata/net_traffic.dat"
-value_style = 'CommunicationTotalByte'
-# dict_path = log_preprocess(net_traffic_path, value_style)
-# Uncomment the following to use generated files
-dict_path = {'userID': net_traffic_path+".dictionary/userID_set.pkl",
-        'domain': net_traffic_path+".dictionary/domain_set.pkl",
-        'method': net_traffic_path+".dictionary/"+value_style+".pkl"}
+# value_style = 'CommunicationTotalByte'
+# # dict_path = log_preprocess(net_traffic_path, value_style)
+# # Uncomment the following to use generated files
+# dict_path = {'userID': net_traffic_path+".dictionary/userID_set.pkl",
+#         'domain': net_traffic_path+".dictionary/domain_set.pkl",
+#         'method': net_traffic_path+".dictionary/"+value_style+".pkl"}
 
 # Generate profile vector
-profile_path = full_profile_vector(net_traffic_path=net_traffic_path, pkl_path=dict_path, option='Origin')
-# Uncomment the following to use generated files
-# profile_path = net_traffic_path+".profile_vector/profile.pkl"
-# profile = cPickle.load(open(profile_path, 'rb'))
+# profile_path = full_profile_vector(net_traffic_path=net_traffic_path, pkl_path=dict_path, option='Origin')
+profile_path = net_traffic_path+".profile/profile.pkl"  # Uncomment to use generated files
+pid_path = net_traffic_path+".profile/pid.pkl"
 
-# # Do clustering and show performance (inertia)
-# max_K = 5
-# num_run = 1
-# inertia = np.zeros([max_K, num_run])
-# print "K, run, time, Inertia"
-# for idx_K, K in enumerate(np.arange(max_K)+1):
-#     for run_id in range(num_run):
-#         t = time.time()
-#         model = KMeans(n_clusters=K, init='k-means++', n_init=1)   # initialize model
-#         model.fit(profile)    # train model
-#         inertia[idx_K, run_id] = model.inertia_
-#         print "%1d, %3d, %.2f, %.6f" % (K, run_id, time.time()-t, model.inertia_)
-#
-# plt.plot(np.array(range(max_K))+1, inertia.mean(axis=1))
-# plt.show()
-# pass
+# Generate feature matrix
+feature_style = "TFIDF_LSA"
+feature_pkl_path = gen_feature_matrix(net_traffic_path=net_traffic_path, profile_path=profile_path,feature_style=feature_style)
 
-# # Get average user profile of each cluster
-# iid_list = list(cPickle.load(open(dict_path['domain'], 'rb')))
-# K = 6
-# num_u, num_f = profile.shape
-# model = KMeans(n_clusters=K, init='k-means++', n_init=1)
-# model.fit(profile)
-# avgProfile = np.zeros([K, num_f])
-# num_u_c = np.zeros([K])
-# for u in range(num_u):
-#     label = model.labels_[u]
-#     if np.sum(profile[u, :]) ==0:
-#         pass
-#     avgProfile[label, :] += profile[u, :]
-#     num_u_c[label] += 1
-# for k in range(K):
-#     avgProfile[k, :] /= num_u_c[k]
-#     top_domains = []
-#     top_domains_idx = avgProfile[k, :].argsort()[::-1][0:5]
-#     for idx in top_domains_idx:
-#         top_domains.append(iid_list[idx])
-#     print k,
-#     print ': '
-#     for domain in top_domains:
-#         print domain.decode('utf-8'),
-#     print '\n'
-#     plt.subplot2grid([K, 1], (k, 0), 1, 1)
-#     plt.plot(np.arange(num_f), avgProfile[k, :])
-# plt.show()
-# pass
+# Do clustering and get index
+K = 8
+options = {'feature_style': feature_style, 'method': 'k-means++', 'K': K, 'n_init': 10}
+index = do_clustering(net_traffic_path=net_traffic_path,feature_pkl_path=feature_pkl_path, options=options)
+
+# Visualize cluster property
+profile = cPickle.load(open(profile_path, 'rb'))  # original profile vector
+pid_list = list(cPickle.load(open(pid_path, 'rb')))
+num_u, num_p = profile.shape
+
+avgProfile = np.zeros([K, num_p])
+num_u_c = np.zeros([K])
+totalBytes = np.zeros([K])
+
+for u in range(num_u):
+    label = index[u]
+    avgProfile[label, :] += profile[u, :]/np.sum(profile[u, :])
+    totalBytes[label] += np.sum(profile[u, :])
+    num_u_c[label] += 1
+for k in range(K):
+    avgProfile[k, :] /= num_u_c[k]
+    top_domains = []
+    top_domains_idx = avgProfile[k, :].argsort()[::-1][0:10]
+    for idx in top_domains_idx:
+        top_domains.append(pid_list[idx])
+    print k+1,
+    print '(%d users, %.3f GB, %.3f MB/user)' % (num_u_c[k], 1.0*totalBytes[k]/10.0**9,(1.0*totalBytes[k]/10.0**6)/num_u_c[k]),
+    print ': '
+    for domain in top_domains:
+        print domain.decode('utf-8'),
+        print '|',
+    print '...'
+    plt.subplot2grid([K, 1], (k, 0), 1, 1)
+    plt.plot(np.arange(num_p), avgProfile[k, :])
+plt.show()
 #
