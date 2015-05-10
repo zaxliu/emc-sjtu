@@ -17,8 +17,8 @@ from clustering import do_clustering
 
 # Preprocess logs
 net_traffic_path = "../EMCdata/net_traffic.dat"
-# value_style = 'CommunicationTotalByte'
-# # dict_path = log_preprocess(net_traffic_path, value_style)
+value_style = 'VisitingNum'    #'CommunicationTotalByte'
+# dict_path = log_preprocess(net_traffic_path, value_style)
 # # Uncomment the following to use generated files
 # dict_path = {'userID': net_traffic_path+".dictionary/userID_set.pkl",
 #         'domain': net_traffic_path+".dictionary/domain_set.pkl",
@@ -26,7 +26,7 @@ net_traffic_path = "../EMCdata/net_traffic.dat"
 
 # Generate profile vector
 # profile_path = full_profile_vector(net_traffic_path=net_traffic_path, pkl_path=dict_path, option='Origin')
-profile_path = net_traffic_path+".profile/profile.pkl"  # Uncomment to use generated files
+profile_path = net_traffic_path+".profile/profile_(user,domain)-Duration.pkl"  # Uncomment to use generated files
 pid_path = net_traffic_path+".profile/pid.pkl"
 
 # Generate feature matrix
@@ -34,12 +34,13 @@ feature_style = "TFIDF_LSA"
 feature_pkl_path = gen_feature_matrix(net_traffic_path=net_traffic_path, profile_path=profile_path,feature_style=feature_style)
 
 # Do clustering and get index
-K = 8
+K = 10
 options = {'feature_style': feature_style, 'method': 'k-means++', 'K': K, 'n_init': 10}
 index = do_clustering(net_traffic_path=net_traffic_path,feature_pkl_path=feature_pkl_path, options=options)
 
 # Visualize cluster property
-profile = cPickle.load(open(profile_path, 'rb'))  # original profile vector
+viz_profile_path = net_traffic_path+".profile/profile_(user,domain)-TotalBytes.pkl"
+profile = cPickle.load(open(viz_profile_path, 'rb'))  # original profile vector
 pid_list = list(cPickle.load(open(pid_path, 'rb')))
 num_u, num_p = profile.shape
 

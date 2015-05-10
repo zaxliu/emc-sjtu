@@ -44,12 +44,13 @@ def gen_feature_matrix(net_traffic_path, profile_path, feature_style):
         # feature = normalize(feature)        # column std=1
         t_svd = TruncatedSVD(n_components=100)
         feature = t_svd.fit_transform(feature)
-        # feature = scale(feature.toarray(), axis=0)
+        feature = scale(feature, axis=0)
         # print t_svd.explained_variance_
         # print t_svd.explained_variance_ratio_
         # print t_svd.explained_variance_ratio_.sum()
         # plt.plot(t_svd.explained_variance_ratio_)
         # plt.show()
+        # pass
 
 
     feature_path = net_traffic_path+".feature/"
@@ -109,14 +110,30 @@ def do_clustering(net_traffic_path, feature_pkl_path, options):
 
 if __name__ == '__main__':
     net_traffic_path = "../EMCdata/net_traffic.dat"
-    profile_path = "../EMCdata/net_traffic.dat.profile/profile.pkl"
+    profile_path = "../EMCdata/net_traffic.dat.profile/profile_(user,domain)-RequestNum.pkl"
     feature_style = "TFIDF_LSA"
     feature_pkl_path = gen_feature_matrix(net_traffic_path=net_traffic_path, profile_path=profile_path,feature_style=feature_style)
     #
     # sweep_options = {'method': 'k-means++', 'K_range': range(1, 10), 'num_run': 1, 'n_init': 5}
     # do_clustering_sweep(feature_pkl_path=feature_pkl_path, sweep_options=sweep_options)
-    options = {'feature_style': feature_style, 'method': 'k-means++', 'K': 7, 'n_init': 10}
-    do_clustering(net_traffic_path=net_traffic_path,feature_pkl_path=feature_pkl_path, options=options)
+    K = 7
+    options = {'feature_style': feature_style, 'method': 'k-means++', 'K': K, 'n_init': 10}
+    index = do_clustering(net_traffic_path=net_traffic_path,feature_pkl_path=feature_pkl_path, options=options)
+
+    feature = cPickle.load(open(feature_pkl_path, 'rb'))
+    num_u, num_f = feature.shape
+    avg_feature = np.zeros([K, num_f])
+    num_u_c = np.zeros([K])
+
+    for u in range(num_u):
+        label = index[u]
+        avg_feature[label, :] += feature[u, :]
+        num_u_c[label] += 1
+
+    for k in range(K):
+        plt.subplot2grid([K, 1], (k, 0), 1, 1)
+        plt.plot(np.arange(num_f), avg_feature[k, :])
+    plt.show()
 
 
 
