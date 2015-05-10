@@ -15,15 +15,18 @@ import matplotlib.pyplot as plt
 
 # Preprocess logs
 net_traffic_path = "../EMCdata/net_traffic.dat"
+net_users_path = "../EMCdata/net_users.dat"
+net_account_path = "../EMCdata/account.txt"
+net_trade_path = "../EMCdata/trade.txt"
 value_style = 'CommunicationTotalByte'
-# dict_path = log_preprocess(net_traffic_path, value_style)
+profile_path = log_preprocess(net_traffic_path,net_users_path, net_account_path, net_trade_path, value_style)
 # Uncomment the following to use generated files
-dict_path = {'userID': net_traffic_path+".dictionary/userID_set.pkl",
-        'domain': net_traffic_path+".dictionary/domain_set.pkl",
-        'method': net_traffic_path+".dictionary/"+value_style+".pkl"}
+# profile_path = {'userID': net_traffic_path+".dictionary/userID_set.pkl",
+#        'domain': net_traffic_path+".dictionary/domain_set.pkl",
+#        'method': net_traffic_path+".dictionary/"+value_style+".pkl"}
 
 # Generate profile vector
-profile_path = full_profile_vector(net_traffic_path=net_traffic_path, pkl_path=dict_path, option='Origin')
+# profile_path = full_profile_vector(net_traffic_path=net_traffic_path, pkl_path=dict_path, option='Origin')
 # Uncomment the following to use generated files
 # profile_path = net_traffic_path+".profile_vector/profile.pkl"
 # profile = cPickle.load(open(profile_path, 'rb'))
@@ -43,10 +46,10 @@ profile_path = full_profile_vector(net_traffic_path=net_traffic_path, pkl_path=d
 #
 # plt.plot(np.array(range(max_K))+1, inertia.mean(axis=1))
 # plt.show()
-# pass
+pass
 
 # Get average user profile of each cluster
-iid_list = list(cPickle.load(open(dict_path['domain'], 'rb')))
+iid_list = cPickle.load(open(profile_path['domain'], 'rb'))
 K = 6
 num_u, num_f = profile.shape
 model = KMeans(n_clusters=K, init='k-means++', n_init=1)
