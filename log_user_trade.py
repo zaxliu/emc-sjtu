@@ -46,4 +46,5 @@ def accountPick(net_account_path, net_trade_path):
     print "finish matching"
     return new_dict
 
-accountPick("../EMCdata/account.txt", "../EMCdata/trade.txt")
+if __name__ == '__main__':
+    accountPick("../EMCdata/account.txt", "../EMCdata/trade.txt")
