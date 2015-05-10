@@ -2,6 +2,7 @@
 import csv
 import os
 import cPickle
+import numpy as np
 """
 function introduction:
 1. pick up 'userID' message and 'web' message from the dataset. storage them in two sets
@@ -64,8 +65,8 @@ def generateDictBy(net_traffic_path, value_style):
     dict_path = net_traffic_path+".dictionary/"
     if not os.path.exists(dict_path):
         os.mkdir(dict_path)
-    f_user = open(dict_path+"userID_set.pkl", 'wb')    # user write mode to overwrite existing pkl files
-    f_domain = open(dict_path+"domain_set.pkl", 'wb')
+    f_user = open(dict_path+"userID_list.pkl", 'wb')    # user write mode to overwrite existing pkl files
+    f_domain = open(dict_path+"domain_list.pkl", 'wb')
     f_dict = open(dict_path+value_style+".pkl", 'wb')
     rows = csv.reader(f)
     if value_style == 'CommunicationTotalByte':
@@ -96,13 +97,32 @@ def generateDictBy(net_traffic_path, value_style):
             domain_total = row[4].split(";")
             for index, domain in enumerate(domain_total):
                 addTupleandVisitNum(user_id, domain)
-    cPickle.dump(final_dictionary, f_dict, -1)
+
+    print "Generating profile vector(without normalization)"
+    uid_list = list(userid_set)
+    iid_list = list(domain_set)
+    full = np.zeros((len(uid_list), len(iid_list)))
+    N = len(final_dictionary.keys())
+    n = 0
+    step = 10
+    for u, i in final_dictionary.keys():
+        uid = uid_list.index(u)
+        iid = iid_list.index(i)
+        full[uid, iid] = final_dictionary[(u, i)]
+        n += 1
+        if int(1.0*n/N*100) == step:
+            print "-%d" % (int(1.0*n/N*100)),
+            step += 10
+    print "Succeed"
+
+
+    cPickle.dump(full, f_dict, -1)
     f_dict.close()
-    cPickle.dump(userid_set, f_user, -1)
+    cPickle.dump(uid_list, f_user, -1)
     f_user.close()
-    cPickle.dump(domain_set, f_domain, -1)
+    cPickle.dump(iid_list, f_domain, -1)
     f_domain.close()
-    path = {'userID': dict_path+"userID_set.pkl",
-            'domain': dict_path+"domain_set.pkl",
+    path = {'userID': dict_path+"userID_list.pkl",
+            'domain': dict_path+"domain_list.pkl",
             'method': dict_path+value_style+".pkl"}
     return path

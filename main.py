@@ -17,16 +17,12 @@ from clustering import do_clustering
 
 # Preprocess logs
 net_traffic_path = "../EMCdata/net_traffic.dat"
-value_style = 'VisitingNum'    #'CommunicationTotalByte'
-# dict_path = log_preprocess(net_traffic_path, value_style)
-# # Uncomment the following to use generated files
-# dict_path = {'userID': net_traffic_path+".dictionary/userID_set.pkl",
-#         'domain': net_traffic_path+".dictionary/domain_set.pkl",
-#         'method': net_traffic_path+".dictionary/"+value_style+".pkl"}
-
-# Generate profile vector
-# profile_path = full_profile_vector(net_traffic_path=net_traffic_path, pkl_path=dict_path, option='Origin')
-profile_path = net_traffic_path+".profile/profile_(user,domain)-Duration.pkl"  # Uncomment to use generated files
+net_users_path = "../EMCdata/net_users.dat"
+net_account_path = "../EMCdata/account.txt"
+net_trade_path = "../EMCdata/trade.txt"
+value_style = 'CommunicationTotalByte'
+profile_path = log_preprocess(net_traffic_path, net_users_path, net_account_path, net_trade_path, value_style)
+# profile_path = net_traffic_path+".profile/profile_(user,domain)-Duration.pkl"  # Uncomment to use generated files
 pid_path = net_traffic_path+".profile/pid.pkl"
 
 # Generate feature matrix
@@ -45,6 +41,14 @@ pid_list = list(cPickle.load(open(pid_path, 'rb')))
 num_u, num_p = profile.shape
 
 avgProfile = np.zeros([K, num_p])
+
+# Get average user profile of each cluster
+iid_list = cPickle.load(open(profile_path['domain'], 'rb'))
+K = 6
+num_u, num_f = profile.shape
+model = KMeans(n_clusters=K, init='k-means++', n_init=1)
+model.fit(profile)
+avgProfile = np.zeros([K, num_f])
 num_u_c = np.zeros([K])
 totalBytes = np.zeros([K])
 
