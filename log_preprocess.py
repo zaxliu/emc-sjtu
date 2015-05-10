@@ -15,21 +15,27 @@ import time
 from log_delete_null import delete_null
 from log_split_by_user import splitByUser
 from log_gen_dict import generateDictBy
+from log_user_property import userPropertyPick
 
 # value_style could be: Duration,CommunicationTotalByte,HTTPRequestNum,VisitingNum
-def log_preprocess(net_traffic_path, value_style):
+def log_preprocess(net_traffic_path, net_users_path, net_account_path, net_trade_path, value_style):
     print "====================================="
     t0 = time.time()
-    # delete_null(net_traffic_path)
+    #delete_null(net_traffic_path)
     t1 = time.time()
     print "It takes %f s to delete all NULLs" %(t1-t0)
-    # splitByUser(net_traffic_path)
+    #splitByUser(net_traffic_path)
     t2 = time.time()
+    print 'hello'
     print "It takes %f s to split log by user" %(t2-t1)
     path = generateDictBy(net_traffic_path, value_style)
     t3 = time.time()
     print "It takes %f s to generate dictionary" %(t3-t2)
+    path_trade = userPropertyPick(net_users_path, net_account_path, net_trade_path)
+    t4 = time.time()
+    print "It takes %f s to pick up trading message" %(t4-t3)
     print "====================================="
+    path.update(path_trade)
     return path
 
 
