@@ -28,10 +28,10 @@ def log_preprocess(net_traffic_path, net_users_path, net_account_path, net_trade
     t2 = time.time()
     print 'hello'
     print "It takes %f s to split log by user" %(t2-t1)
-    path = generateDictBy(net_traffic_path, value_style)
+    [path, uid_list] = generateDictBy(net_traffic_path, value_style)
     t3 = time.time()
     print "It takes %f s to generate dictionary" %(t3-t2)
-    path_trade = userPropertyPick(net_users_path, net_account_path, net_trade_path)
+    path_trade = userPropertyPick(net_users_path, net_account_path, net_trade_path, uid_list)
     t4 = time.time()
     print "It takes %f s to pick up trading message" %(t4-t3)
     print "====================================="
