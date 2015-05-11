@@ -19,7 +19,7 @@ userid_set = set([])
 domain_set = set([])
 
 
-def addTupleandByte(user_id,domain,byte):
+def addTupleandByte(user_id, domain, byte):
     userid_set.add(user_id)
     domain_set.add(domain)
     key_tuple = (user_id,domain)
@@ -73,30 +73,50 @@ def generateDictBy(net_traffic_path, value_style):
         for row in rows:
             user_id = row[0]
             domain_total = row[4].split(";")
+            service_total = row[5].split(";")
             Com_byte = row[7].split(";")
             for index, domain in enumerate(domain_total):
-                addTupleandByte(user_id, domain, float(Com_byte[index]))
+                domain = domain.replace('1', '')    #删除掉无关字符，如“百度1”中的字符“1”
+                domain = domain.replace('2', '')
+                domain = domain.replace('3', '')
+                web = domain + service_total[index]
+                addTupleandByte(user_id, web, float(Com_byte[index]))
     elif value_style == 'Duration':
         for row in rows:
             user_id = row[0]
             domain_total = row[4].split(";")
-            mean_duration = float(row[3])/len(domain_total)
+            service_total = row[5].split(";")
+            mean_duration = float(row[3])/len(domain_total)/1000/60 #以分钟为单位
             for index, domain in enumerate(domain_total):
-                addTupleandDuration(user_id, domain, mean_duration)
+                domain = domain.replace('1', '')
+                domain = domain.replace('2', '')
+                domain = domain.replace('3', '')
+                web = domain + service_total[index]
+                addTupleandDuration(user_id, web, mean_duration)
     elif value_style == 'HTTPRequestNum':
         for row in rows:
             user_id = row[0]
             domain_total = row[4].split(";")
+            service_total = row[5].split(";")
             HTTPnum = row[8].split(";")
             for index, domain in enumerate(domain_total):
+                domain = domain.replace('1', '')
+                domain = domain.replace('2', '')
+                domain = domain.replace('3', '')
+                web = domain + service_total[index]
                 http = float(HTTPnum[index])
-                addTupleandHTTP(user_id, domain, http)
+                addTupleandHTTP(user_id, web, http)
     elif value_style == 'VisitingNum':
         for row in rows:
             user_id = row[0]
             domain_total = row[4].split(";")
+            service_total = row[5].split(";")
             for index, domain in enumerate(domain_total):
-                addTupleandVisitNum(user_id, domain)
+                domain = domain.replace('1', '')
+                domain = domain.replace('2', '')
+                domain = domain.replace('3', '')
+                web = domain + service_total[index]
+                addTupleandVisitNum(user_id, web)
 
     print "Generating profile vector(without normalization)"
     uid_list = list(userid_set)
@@ -125,4 +145,7 @@ def generateDictBy(net_traffic_path, value_style):
     path = {'userID': dict_path+"userID_list.pkl",
             'domain': dict_path+"domain_list.pkl",
             'method': dict_path+value_style+".pkl"}
-    return path
+    return path, uid_list
+
+if __name__ == "__main__":
+    generateDictBy("../EMCdata/net_traffic_sample.txt", 'Duration')
