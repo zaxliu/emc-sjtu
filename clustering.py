@@ -31,28 +31,17 @@ def gen_feature_matrix(net_traffic_path, profile_path, feature_style):
     elif feature_style == 'TFIDF':      # TFIDF
         # us tf=1+log(tf), set sublinear_tf=True
         # want to cancel row_std=1, set norm=None
-        ti_trans = TfidfTransformer(use_idf=True, sublinear_tf=False, norm='l2')
-        feature = ti_trans.fit_transform(profile)
-        # feature = scale(feature, axis=1)    # row or col, mean=0, std=1
-        # feature = normalize(feature)        # column std=1
+        ti_trans = TfidfTransformer(use_idf=True, sublinear_tf=True, norm='l2')
+        feature = ti_trans.fit_transform(profile).toarray()
+        # feature = scale(feature, axis=0)    # row or col, mean=0, std=1
     elif feature_style == 'TFIDF_LSA':  # TFIDF followed by LSA dimentionality reduction
         # us tf=1+log(tf), set sublinear_tf=True    (dispersed variance)
         # want to cancel row_std=1, set norm=None
-        tf_idf = TfidfTransformer(use_idf=True, sublinear_tf=False, norm='l2')
+        tf_idf = TfidfTransformer(use_idf=True, sublinear_tf=True, norm='l2')
         feature = tf_idf.fit_transform(profile)
-        # feature = scale(feature.toarray(), axis=1)    # row or col, mean=0, std=1 (col std not so good)
-        # feature = normalize(feature)        # column std=1
-        t_svd = TruncatedSVD(n_components=100)
+        t_svd = TruncatedSVD(n_components=300)
         feature = t_svd.fit_transform(feature)
-        feature = scale(feature, axis=0)
-        # print t_svd.explained_variance_
-        # print t_svd.explained_variance_ratio_
-        # print t_svd.explained_variance_ratio_.sum()
-        # plt.plot(t_svd.explained_variance_ratio_)
-        # plt.show()
-        # pass
-
-
+        feature = scale(feature, axis=1)
     feature_path = net_traffic_path+".feature/"
     if not os.path.exists(feature_path):
         os.mkdir(feature_path)
@@ -99,9 +88,6 @@ def do_clustering(net_traffic_path, feature_pkl_path, options):
         model = KMeans(n_clusters=K, init=method, n_init=n_init, verbose=False)   # initialize model
         model.fit(feature)    # train model
         index_pkl_path = index_path+'index_feature='+feature_style+'_method=k-means++_K='+str(K)+'_n_init='+str(n_init)+'.pkl'
-    elif method == 'lsa-k-means++':
-        K = options['K']
-        n_init = options['n_init']
 
     f = open(index_pkl_path, 'wb')
     return model.labels_
@@ -111,29 +97,29 @@ def do_clustering(net_traffic_path, feature_pkl_path, options):
 if __name__ == '__main__':
     net_traffic_path = "../EMCdata/net_traffic.dat"
     profile_path = "../EMCdata/net_traffic.dat.profile/profile_(user,domain)-RequestNum.pkl"
-    feature_style = "TFIDF_LSA"
+    feature_style = "TFIDF"
     feature_pkl_path = gen_feature_matrix(net_traffic_path=net_traffic_path, profile_path=profile_path,feature_style=feature_style)
     #
-    # sweep_options = {'method': 'k-means++', 'K_range': range(1, 10), 'num_run': 1, 'n_init': 5}
-    # do_clustering_sweep(feature_pkl_path=feature_pkl_path, sweep_options=sweep_options)
-    K = 7
-    options = {'feature_style': feature_style, 'method': 'k-means++', 'K': K, 'n_init': 10}
-    index = do_clustering(net_traffic_path=net_traffic_path,feature_pkl_path=feature_pkl_path, options=options)
-
-    feature = cPickle.load(open(feature_pkl_path, 'rb'))
-    num_u, num_f = feature.shape
-    avg_feature = np.zeros([K, num_f])
-    num_u_c = np.zeros([K])
-
-    for u in range(num_u):
-        label = index[u]
-        avg_feature[label, :] += feature[u, :]
-        num_u_c[label] += 1
-
-    for k in range(K):
-        plt.subplot2grid([K, 1], (k, 0), 1, 1)
-        plt.plot(np.arange(num_f), avg_feature[k, :])
-    plt.show()
+    sweep_options = {'method': 'k-means++', 'K_range': range(1, 10), 'num_run': 1, 'n_init': 5}
+    do_clustering_sweep(feature_pkl_path=feature_pkl_path, sweep_options=sweep_options)
+    # K = 7
+    # options = {'feature_style': feature_style, 'method': 'k-means++', 'K': K, 'n_init': 10}
+    # index = do_clustering(net_traffic_path=net_traffic_path,feature_pkl_path=feature_pkl_path, options=options)
+    #
+    # feature = cPickle.load(open(feature_pkl_path, 'rb'))
+    # num_u, num_f = feature.shape
+    # avg_feature = np.zeros([K, num_f])
+    # num_u_c = np.zeros([K])
+    #
+    # for u in range(num_u):
+    #     label = index[u]
+    #     avg_feature[label, :] += feature[u, :]
+    #     num_u_c[label] += 1
+    #
+    # for k in range(K):
+    #     plt.subplot2grid([K, 1], (k, 0), 1, 1)
+    #     plt.plot(np.arange(num_f), avg_feature[k, :])
+    # plt.show()
 
 
 
