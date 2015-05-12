@@ -79,7 +79,7 @@ def generateDictBy(net_traffic_path, value_style):
                 domain = domain.replace('1', '')    #删除掉无关字符，如“百度1”中的字符“1”
                 domain = domain.replace('2', '')
                 domain = domain.replace('3', '')
-                web = domain + service_total[index]
+                web = domain + '(' + service_total[index] +')'
                 addTupleandByte(user_id, web, float(Com_byte[index]))
     elif value_style == 'Duration':
         for row in rows:
@@ -91,7 +91,7 @@ def generateDictBy(net_traffic_path, value_style):
                 domain = domain.replace('1', '')
                 domain = domain.replace('2', '')
                 domain = domain.replace('3', '')
-                web = domain + service_total[index]
+                web = domain + '(' + service_total[index] +')'
                 addTupleandDuration(user_id, web, mean_duration)
     elif value_style == 'HTTPRequestNum':
         for row in rows:
@@ -103,7 +103,7 @@ def generateDictBy(net_traffic_path, value_style):
                 domain = domain.replace('1', '')
                 domain = domain.replace('2', '')
                 domain = domain.replace('3', '')
-                web = domain + service_total[index]
+                web = domain + '(' + service_total[index] +')'
                 http = float(HTTPnum[index])
                 addTupleandHTTP(user_id, web, http)
     elif value_style == 'VisitingNum':
@@ -115,7 +115,7 @@ def generateDictBy(net_traffic_path, value_style):
                 domain = domain.replace('1', '')
                 domain = domain.replace('2', '')
                 domain = domain.replace('3', '')
-                web = domain + service_total[index]
+                web = domain + '(' + service_total[index] +')'
                 addTupleandVisitNum(user_id, web)
 
     print "Generating profile vector(without normalization)"
@@ -148,4 +148,7 @@ def generateDictBy(net_traffic_path, value_style):
     return path, uid_list
 
 if __name__ == "__main__":
-    generateDictBy("../EMCdata/net_traffic_sample.txt", 'Duration')
+    generateDictBy("../EMCdata/net_traffic.dat", 'CommunicationTotalByte')
+    generateDictBy("../EMCdata/net_traffic.dat", 'Duration')
+    generateDictBy("../EMCdata/net_traffic.dat", 'HTTPRequestNum')
+    generateDictBy("../EMCdata/net_traffic.dat", 'VisitingNum')
