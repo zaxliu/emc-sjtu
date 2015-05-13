@@ -33,15 +33,35 @@ def gen_feature_matrix(net_traffic_path, profile_path, feature_style):
         # want to cancel row_std=1, set norm=None
         ti_trans = TfidfTransformer(use_idf=True, sublinear_tf=True, norm='l2')
         feature = ti_trans.fit_transform(profile).toarray()
-        # feature = scale(feature, axis=0)    # row or col, mean=0, std=1
+        feature = scale(feature, axis=0)
+        feature = scale(feature, axis=1)
     elif feature_style == 'TFIDF_LSA':  # TFIDF followed by LSA dimentionality reduction
         # us tf=1+log(tf), set sublinear_tf=True    (dispersed variance)
         # want to cancel row_std=1, set norm=None
         tf_idf = TfidfTransformer(use_idf=True, sublinear_tf=True, norm='l2')
         feature = tf_idf.fit_transform(profile)
-        t_svd = TruncatedSVD(n_components=300)
+        t_svd = TruncatedSVD(n_components=80)
         feature = t_svd.fit_transform(feature)
+        print 'Total explained variance: ',
+        print t_svd.explained_variance_ratio_.sum()
+        feature = scale(feature, axis=0)
         feature = scale(feature, axis=1)
+    elif feature_style == 'TFIDF_Trans':
+        tf_idf = TfidfTransformer(use_idf=True, sublinear_tf=True, norm='l2')
+        feature = tf_idf.fit_transform(profile.transpose()).toarray()
+        feature = scale(feature, axis=0)
+        feature = scale(feature, axis=1)
+    elif feature_style == 'TFIDF_LSA_Trans':
+        tf_idf = TfidfTransformer(use_idf=True, sublinear_tf=True, norm='l2')
+        feature = tf_idf.fit_transform(profile.transpose())
+        t_svd = TruncatedSVD(n_components=80)
+        feature = t_svd.fit_transform(feature)
+        print 'Total explained variance: ',
+        print t_svd.explained_variance_ratio_.sum()
+        feature = scale(feature, axis=0)
+        feature = scale(feature, axis=1)
+    else:
+        print 'Unknown feature style!'
     feature_path = net_traffic_path+".feature/"
     if not os.path.exists(feature_path):
         os.mkdir(feature_path)
@@ -96,11 +116,11 @@ def do_clustering(net_traffic_path, feature_pkl_path, options):
 
 if __name__ == '__main__':
     net_traffic_path = "../EMCdata/net_traffic.dat"
-    profile_path = "../EMCdata/net_traffic.dat.profile/profile_(user,domain)-RequestNum.pkl"
-    feature_style = "TFIDF"
+    profile_path = "../EMCdata/net_traffic.dat.profile/profile_(user,domain)-TotalBytes.pkl"
+    feature_style = "TFIDF_LSA"
     feature_pkl_path = gen_feature_matrix(net_traffic_path=net_traffic_path, profile_path=profile_path,feature_style=feature_style)
     #
-    sweep_options = {'method': 'k-means++', 'K_range': range(1, 10), 'num_run': 1, 'n_init': 5}
+    sweep_options = {'method': 'k-means++', 'K_range': range(1, 20), 'num_run': 1, 'n_init': 10}
     do_clustering_sweep(feature_pkl_path=feature_pkl_path, sweep_options=sweep_options)
     # K = 7
     # options = {'feature_style': feature_style, 'method': 'k-means++', 'K': K, 'n_init': 10}

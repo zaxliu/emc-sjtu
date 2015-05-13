@@ -265,18 +265,8 @@ data = Data([
 plot_url = py.plot(data, filename='location-heatmap')
 
 # Show overlaied age distribution with plotly
-data = Data([
-    Scatter(
-        x=age_list,
-        y=disAge[k,:].tolist(),
-        fill='tozeroy',
-        xaxis='x'+str(k+1),
-        yaxis='y'+str(k+1)
-    ) for k in range(K)
-])
-fig = tls.get_subplots(rows=K, columns=1)
-fig['data'] += data
-plot_url = py.plot(fig, filename='location-age-dist')
+data = Data([Contour(x=age_list, z=disAge)])
+plot_url = py.plot(data, filename='location-age-dist')
 
 # Other properties
 plt.figure("fig_amount")
