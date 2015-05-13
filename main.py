@@ -15,40 +15,45 @@ import matplotlib.pyplot as plt
 from clustering import gen_feature_matrix
 from clustering import do_clustering
 
-# Preprocess logs
+# =================== Preprocess logs =============================
 net_traffic_path = "../EMCdata/net_traffic.dat"
 net_users_path = "../EMCdata/net_users.dat"
 net_account_path = "../EMCdata/account.txt"
 net_trade_path = "../EMCdata/trade.txt"
 value_style = 'CommunicationTotalByte'
 # profile_path = log_preprocess(net_traffic_path, net_users_path, net_account_path, net_trade_path, value_style)
-# profile_path = net_traffic_path+".profile/profile_(user,domain)-TotalBytes.pkl"  # Uncomment to use generated files
+profile_path = net_traffic_path+".profile/profile_(user,domain)-TotalBytes.pkl"  # Uncomment to use generated files
 # profile_path = net_traffic_path+".profile/profile_(user,domain)-Duration.pkl"
 # profile_path = net_traffic_path+".profile/profile_(user,domain)-RequestNum.pkl"
-profile_path = net_traffic_path+".profile/profile_(user,domain)-VisitingNum.pkl"
-pid_path = net_traffic_path+".profile/pid.pkl"
+# profile_path = net_traffic_path+".profile/profile_(user,domain)-VisitingNum.pkl"
+pid_path = net_traffic_path+".profile/pid_(user,domain).pkl"
 
-# Generate feature matrix
-feature_style = "TFIDF_LSA"
+# ================= Generate feature matrix =======================
+feature_style = "TFIDF"
 print profile_path,
 print feature_style
 feature_pkl_path = gen_feature_matrix(net_traffic_path=net_traffic_path, profile_path=profile_path,feature_style=feature_style)
 
-# Do clustering and get index
-K = 10
+# ================= Do clustering and get index ==================
+K = 8
 options = {'feature_style': feature_style, 'method': 'k-means++', 'K': K, 'n_init': 10}
-index = do_clustering(net_traffic_path=net_traffic_path,feature_pkl_path=feature_pkl_path, options=options)
+index = do_clustering(net_traffic_path=net_traffic_path, feature_pkl_path=feature_pkl_path, options=options)
 
-# Visualize cluster property
-viz_profile_path = net_traffic_path+".profile/profile_(user,domain)-TotalBytes.pkl"
-profile = cPickle.load(open(viz_profile_path, 'rb'))  # original profile vector
-pid_list = list(cPickle.load(open(pid_path, 'rb')))
-num_u, num_p = profile.shape
-
+# ================= Visualize cluster property ===================
+# 指定矩阵文件路径
+# viz_profile_path = net_traffic_path+".profile/profile_(user,domain)-TotalBytes.pkl"
+feature_style = "TFIDF"
+viz_profile_path = gen_feature_matrix(net_traffic_path=net_traffic_path, profile_path=profile_path,feature_style=feature_style)
 viz_userproperty_path = net_users_path+".userproperty/user_property.pkl"
-uid_path = net_traffic_path+".profile/uid.pkl"
+uid_path = net_traffic_path+".profile/uid_(user,domain).pkl"
+pid_list = list(cPickle.load(open(pid_path, 'rb')))
+
+# 读取文件
+profile = cPickle.load(open(viz_profile_path, 'rb'))  # original profile vector
 userproperty = cPickle.load(open(viz_userproperty_path, 'rb'))  # user_property_matrix, 0 for F, 1 for M.
 
+# 进行计算
+num_u, num_p = profile.shape
 avgProfile = np.zeros([K, num_p])
 num_u_c = np.zeros([K])
 totalBytes = np.zeros([K])
@@ -127,11 +132,8 @@ plt.figure("fig_amount")
 plt.plot(range(K), avgAmount)
 plt.figure("fig_undergraduate")
 plt.plot(range(K), num_u_c_undergraduate)
-plt.figure("fig_MS")
 plt.plot(range(K), num_u_c_MS)
-plt.figure("fig_PHD")
 plt.plot(range(K), num_u_c_PHD)
-plt.figure("fig_jiaogong")
 plt.plot(range(K), num_u_c_jiaogong)
 plt.show()
 #
