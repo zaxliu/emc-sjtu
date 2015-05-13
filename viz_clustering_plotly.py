@@ -155,6 +155,7 @@ for u in range(num_u):
 # Statistics of each cluster
 avg_profile_whole = np.zeros([K, num_p])
 avg_superposition_top = []
+first_domain = []
 for k in range(K):
     # Number of users within cluster
     num_user_c[k] = np.sum(index == k)
@@ -206,6 +207,7 @@ for k in range(K):
 
     # List top domain names with in cluster
     top_domains = [pid_list[idx] for idx in avg_profile.argsort()[::-1][0:10]]
+    first_domain.append(top_domains[0])
     for idx in avg_profile.argsort()[::-1][0:8]:
         avg_superposition_top.append(idx)
     for domain in top_domains:
@@ -261,29 +263,55 @@ data = Data([
         z=avg_profile_whole[:, avg_superposition_top]
     )
 ])
-plot_url = py.plot(data, filename='basic-heatmap')
+plot_url = py.plot(data, filename='Heatmap_80')
 
 # Other properties
 plt.figure("fig_amount")
 plt.plot(range(K), avgAmount)
 plt.plot(range(K), maxAmount)
 plt.plot(range(K), medAmount)
-plt.figure("fig_undergraduate")
-plt.plot(range(K), num_u_c_undergraduate)
-# plt.figure("fig_MS")
-plt.plot(range(K), num_u_c_MS)
-# plt.figure("fig_PHD")
-plt.plot(range(K), num_u_c_PHD)
-# plt.figure("fig_jiaogong")
-plt.plot(range(K), num_u_c_jiaogong)
+data = Data([
+    Bar(
+        x=first_domain,
+        y=avgAmount/100
+    )
+])
+plot_url = py.plot(data, filename='Apple_user_avgAmount_80')
+
+data = Data([
+    Heatmap(
+        x=age_list,
+        y=first_domain,
+        z=disAge
+    )
+])
+plot_url = py.plot(data, filename='Apple_ClassesOfAge_80')
+
+# plt.figure("fig_undergraduate")
+# plt.plot(range(K), num_u_c_undergraduate)
+# # plt.figure("fig_MS")
+# plt.plot(range(K), num_u_c_MS)
+# # plt.figure("fig_PHD")
+# plt.plot(range(K), num_u_c_PHD)
+# # plt.figure("fig_jiaogong")
+# plt.plot(range(K), num_u_c_jiaogong)
 plt.ylim([0, 1])
 
 # Draw gender contrast figure
 plt.figure('Gender distribution')
 plt.bar(np.arange(K), num_man_ratio_c)
 overall_man_ratio = np.sum(num_man_c)/num_u
+data = Data([
+    Bar(
+        x=first_domain,
+        y=num_man_ratio_c
+    )
+])
+plot_url = py.plot(data, filename='num_man_ratio_c_80')
+print num_man_ratio_c
 print 'Overall ratio of male: %.1f %%' % (overall_man_ratio*100)
-plt.ylim([0.5, 0.8])
+# plt.ylim([0.5, 0.8])
 
 plt.show()
+print avgAmount/100
 pass
